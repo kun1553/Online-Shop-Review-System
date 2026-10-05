@@ -1,0 +1,30 @@
+# ================= 构建产物 =================
+target/
+*.class
+out/
+build/
+
+# ================= IntelliJ IDEA =================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ================= 本地私有配置（含密码，切勿提交） =================
+application-local.yaml
+application-local.yml
+application-local.properties
+
+# ================= 日志 / 临时文件 =================
+*.log
+logs/
+*.tmp
+*.bak
+
+# ================= 操作系统 =================
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ================= 其它 =================
+新建 文本文档.txt
