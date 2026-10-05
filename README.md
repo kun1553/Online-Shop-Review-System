@@ -32,14 +32,33 @@ Maven 模块名为 `hm-dianping`（黑马点评课程项目）。
             └── mapper/VoucherMapper.xml
 ```
 
-## 本地运行
+## 跑起来需要什么
 
-### 1. 准备中间件
+| 依赖 | 说明 |
+| --- | --- |
+| JDK 17+ | Spring Boot 2.7.18 要求 |
+| Maven | 或用 IDEA 自带的 |
+| MySQL 8 | 建库并导入 `db/hmdp.sql` |
+| Redis | 默认端口 6379 |
+| Nginx（可选） | 只用于托管前端页面；不需要页面可用 Postman / Apifox 直接调接口 |
 
-- MySQL 8：新建数据库（默认库名 `ikun`），导入 `hm-dianping/src/main/resources/db/hmdp.sql`
-- Redis：默认端口 `6379`
+### 1. 数据库
 
-### 2. 配置敏感信息
+`db/hmdp.sql` 里没有 `CREATE DATABASE` 也没有 `USE`，需要自己先建库并选中：
+
+```sql
+CREATE DATABASE ikun DEFAULT CHARACTER SET utf8mb4;
+USE ikun;
+-- 然后执行 hm-dianping/src/main/resources/db/hmdp.sql
+```
+
+库名要和配置里的 `MYSQL_DATABASE` 一致（默认 `ikun`）。用 Navicat 的「运行 SQL 文件」时记得手动指定目标库。
+
+### 2. Redis
+
+默认连 `6379`。注意 `REDIS_HOST` 的默认值是 `192.168.234.128`（原作者的虚拟机地址），**在自己机器上跑要改成 `127.0.0.1`**，否则启动时会连接超时。
+
+### 3. 配置密码
 
 `application.yaml` 中不包含任何真实密码，全部通过环境变量注入：
 
@@ -53,6 +72,7 @@ Maven 模块名为 `hm-dianping`（黑马点评课程项目）。
 | `REDIS_HOST` | Redis 地址 | `192.168.234.128` |
 | `REDIS_PORT` | Redis 端口 | `6379` |
 | `REDIS_PASSWORD` | Redis 密码 | 空 |
+| `HMDP_UPLOAD_DIR` | 图片上传目录 | 见「说明」 |
 
 两种填写方式，任选其一：
 
@@ -62,7 +82,42 @@ Maven 模块名为 `hm-dianping`（黑马点评课程项目）。
 **方式二**：在 IDEA 的 Run/Debug Configurations -> Environment variables 中填写，例如
 `MYSQL_PASSWORD=你的数据库密码;REDIS_PASSWORD=你的Redis密码`
 
-### 3. 启动
+### 4. 前端页面（可选）
+
+前端是课程配套的静态页面，在另一个仓库：[gitee.com/huyi612/hmdp-web](https://gitee.com/huyi612/hmdp-web)
+
+```bash
+git clone https://gitee.com/huyi612/hmdp-web.git
+```
+
+把文件放进 Nginx 的 `html/hmdp` 目录（例如 `D:/nginx-1.18.0/html/hmdp/`），并让 Nginx 监听 8080、把 `/api` 反向代理到后端的 8081：
+
+```nginx
+server {
+    listen       8080;
+    server_name  localhost;
+
+    # 前端页面
+    location / {
+        root   html/hmdp;
+        index  index.html index.htm;
+    }
+
+    # 接口反向代理：/api/user/login -> /user/login
+    location /api {
+        rewrite /api(/.*) $1 break;
+        proxy_pass http://127.0.0.1:8081;
+        proxy_pass_request_headers on;
+        proxy_http_version 1.1;
+    }
+}
+```
+
+前端 `js/common.js` 里的 `commonURL` 就是 `/api`，靠上面这段 rewrite 去掉前缀转发给后端。
+
+启动 Nginx 后访问 <http://localhost:8080>。
+
+### 5. 启动后端
 
 ```bash
 cd hm-dianping
@@ -71,8 +126,13 @@ mvn spring-boot:run
 
 或直接在 IDEA 中运行 `com.hmdp.HmDianPingApplication`，服务端口 `8081`。
 
+### 6. 登录
+
+项目没有对接短信服务商。调用 `POST /user/code?phone=13800138000` 之后，**6 位验证码会打印在后端控制台/日志里**（`UserServiceImpl.sendCode`），拿它去调 `POST /user/login` 即可。
+
 ## 说明
 
-- 图片上传目录默认是 `D:\lesson\nginx-1.18.0\html\hmdp\imgs\`，可用 JVM 参数 `-Dhmdp.upload-dir=你的路径` 覆盖。
-- 前端静态资源（Nginx `html/hmdp`）不在本仓库中，本仓库只包含后端代码。
+- **图片上传目录必须指向 Nginx 站点 `html/hmdp/imgs`**，通过 `hmdp.upload-dir` 配置（默认 `D:/mongdb/nginx/nginx-1.18.0/html/hmdp/imgs/`）。它是课程作者机器上的路径，请改成你自己的。配错了的表现是：图片上传接口返回成功，但浏览器访问 `/imgs/...` 404 —— 因为前端上传后拼的地址是 `/imgs` + 接口返回的路径。
+- 前端页面不在本仓库中（它是课程方的独立仓库，见第 4 步），本仓库只包含后端代码。
+- 代码里没有配置 CORS，前端依赖 Nginx 代理保持同源。若用其它端口直接打开页面，接口会被浏览器跨域拦截。
 - `db/hmdp.sql` 为课程配套测试数据（含约 1000 条测试用户），仅供学习使用。

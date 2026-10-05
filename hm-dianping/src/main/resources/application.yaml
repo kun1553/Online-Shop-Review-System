@@ -28,3 +28,7 @@ mybatis-plus:
 logging:
   level:
     com.hmdp: debug
+
+hmdp:
+  # 图片上传目录：必须指向 Nginx 站点 html/hmdp 下面的 imgs 目录，否则上传的图片无法访问
+  upload-dir: ${HMDP_UPLOAD_DIR:D:/mongdb/nginx/nginx-1.18.0/html/hmdp/imgs/}

@@ -12,3 +12,7 @@ spring:
     host: 192.168.234.128
     port: 6379
     password: 这里填写Redis密码
+
+hmdp:
+  # 改成你自己 Nginx 站点 html/hmdp/imgs 的绝对路径（注意用正斜杠 /）
+  upload-dir: D:/mongdb/nginx/nginx-1.18.0/html/hmdp/imgs/
