@@ -10,10 +10,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:ikun}?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
     username: ${MYSQL_USERNAME:root}
+    # 密码不要写默认值！否则会被提交到 GitHub。真实密码放 application-local.yaml（已 gitignore）
     password: ${MYSQL_PASSWORD:}
   redis:
-    host: ${REDIS_HOST:192.168.234.128}
+    host: ${REDIS_HOST:192.168.234.130}
     port: ${REDIS_PORT:6379}
+    # 同上，真实密码放 application-local.yaml
     password: ${REDIS_PASSWORD:}
     lettuce:
       pool:
