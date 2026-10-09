@@ -56,7 +56,7 @@ USE ikun;
 
 ### 2. Redis
 
-默认连 `6379`。注意 `REDIS_HOST` 的默认值是 `192.168.234.128`（原作者的虚拟机地址），**在自己机器上跑要改成 `127.0.0.1`**，否则启动时会连接超时。
+默认连 `6379`。注意 `REDIS_HOST` 的默认值是 `192.168.234.130`（原作者的虚拟机地址），**在自己机器上跑要改成 `127.0.0.1`**，否则启动时会连接超时。
 
 ### 3. 配置密码
 
@@ -69,7 +69,7 @@ USE ikun;
 | `MYSQL_DATABASE` | 数据库名 | `ikun` |
 | `MYSQL_USERNAME` | 数据库用户名 | `root` |
 | `MYSQL_PASSWORD` | 数据库密码 | 空 |
-| `REDIS_HOST` | Redis 地址 | `192.168.234.128` |
+| `REDIS_HOST` | Redis 地址 | `192.168.234.130` |
 | `REDIS_PORT` | Redis 端口 | `6379` |
 | `REDIS_PASSWORD` | Redis 密码 | 空 |
 | `HMDP_UPLOAD_DIR` | 图片上传目录 | 见「说明」 |
